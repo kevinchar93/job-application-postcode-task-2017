@@ -1,4 +1,4 @@
-package regex_validator
+package main
 
 import "testing"
 import "regexp"
