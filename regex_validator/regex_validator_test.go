@@ -7,16 +7,16 @@ import "fmt"
 // Perform the setup for the tests ----------------------------------------------------------------------
 
 // the main regex that will be used to validate postcodes (postcodes that match it are valid)
-var mainRegex = regexp.MustCompile(`(GIR\s0AA)|(((^[A-PR-UWYZ][0-9][0-9]?)|(([A-PR-UWYZ][A-HK-Y][0-9][0-9])|([A-PR-UWYZ][A-HK-Y][0-9])|(WC[0-9][A-Z])|((^[A-PR-UWYZ][0-9][A-HJKPSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]))))\s[0-9][ABD-HJLNP-UW-Z]{2})`)
-var mainRegexValidator = NewRegexValidator(mainRegex, MATCH_MEANS_VALID)
+var mainRegex_test = regexp.MustCompile(`(GIR\s0AA)|(((^[A-PR-UWYZ][0-9][0-9]?)|(([A-PR-UWYZ][A-HK-Y][0-9][0-9])|([A-PR-UWYZ][A-HK-Y][0-9])|(WC[0-9][A-Z])|((^[A-PR-UWYZ][0-9][A-HJKPSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]))))\s[0-9][ABD-HJLNP-UW-Z]{2})`)
+var mainRegexValidator_test = NewRegexValidator(mainRegex_test, MATCH_MEANS_VALID)
 
 // regex that will match postcodes that should be excluded from the AA99 prefix (matches postcodes are invalid)
-var AA99_exclusionRegex = regexp.MustCompile(`((BR|FY|HA|HD|HG|HR|HS|HX|JE|LD|SM|SR|WC|WN|ZE)[0-9][0-9])`)
-var AA99_exclusionRegexValidator = NewRegexValidator(AA99_exclusionRegex, MATCH_MEANS_NOT_VALID)
+var AA99_exclusionRegex_test = regexp.MustCompile(`((BR|FY|HA|HD|HG|HR|HS|HX|JE|LD|SM|SR|WC|WN|ZE)[0-9][0-9]\s[0-9][ABD-HJLNP-UW-Z]{2})`)
+var AA99_exclusionRegexValidator_test = NewRegexValidator(AA99_exclusionRegex_test, MATCH_MEANS_NOT_VALID)
 
 // regex that will match postcode that shoulbe be excluded from the AA9 prefix (matches postcodes are invalid)
-var AA9_exclusionRegex = regexp.MustCompile(`((AB|LL|SO)[0-9])`)
-var AA9_exclusionRegexValidator = NewRegexValidator(AA9_exclusionRegex, MATCH_MEANS_NOT_VALID)
+var AA9_exclusionRegex_test = regexp.MustCompile(`((AB|LL|SO)[0-9]\s[0-9][ABD-HJLNP-UW-Z]{2})`)
+var AA9_exclusionRegexValidator_test = NewRegexValidator(AA9_exclusionRegex_test, MATCH_MEANS_NOT_VALID)
 
 // ---------------------------- UNIT TESTS , regex_validator package ------------------------------------
 
@@ -46,7 +46,7 @@ func Test_IsStringValid__MatchMeansValid_WithMatchingString(t *testing.T) {
 
 	postcode := "EC1A 1BB"
 	expected := true
-	result := mainRegexValidator.IsStringValid(postcode)
+	result := mainRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -59,7 +59,7 @@ func Test_IsStringValid__MatchMeansValid_WithMatchingString(t *testing.T) {
 func Test_IsStringValid__MatchMeansValid_WithNonMatchingString(t *testing.T) {
 	postcode := "LS44PL"
 	expected := false
-	result := mainRegexValidator.IsStringValid(postcode)
+	result := mainRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -73,7 +73,7 @@ func Test_IsStringValid__MatchMeansValid_WithNonMatchingString(t *testing.T) {
 func Test_IsStringValid__MatchMeansNotValid_WithMatchingString(t *testing.T) {
 	postcode := "FY10 4PL"
 	expected := false
-	result := AA99_exclusionRegexValidator.IsStringValid(postcode)
+	result := AA99_exclusionRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -87,7 +87,7 @@ func Test_IsStringValid__MatchMeansNotValid_WithMatchingString(t *testing.T) {
 func Test_IsStringValid__MatchMeansNotValid_WithNonMatchingString(t *testing.T) {
 	postcode := "Q1A 9AA"
 	expected := true
-	result := AA99_exclusionRegexValidator.IsStringValid(postcode)
+	result := AA99_exclusionRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -96,11 +96,11 @@ func Test_IsStringValid__MatchMeansNotValid_WithNonMatchingString(t *testing.T) 
 }
 
 // expected: true
-// call IsStringValid, the validator will use the "mainRegex" and be given a string that matches
+// call IsStringValid, the validator will use the "mainRegex_test" and be given a string that matches
 func Test_IsStringValid__MainRegex_WithMatchingString(t *testing.T) {
 	postcode := "EC1A 1BB"
 	expected := true
-	result := mainRegexValidator.IsStringValid(postcode)
+	result := mainRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -109,12 +109,12 @@ func Test_IsStringValid__MainRegex_WithMatchingString(t *testing.T) {
 }
 
 // expected: false
-// call IsStringValid, the validator will use the "mainRegex" and be given a string that does not match
+// call IsStringValid, the validator will use the "mainRegex_test" and be given a string that does not match
 //
 func Test_IsStringValid__MainRegex_WithNonMatchingString(t *testing.T) {
 	postcode := "$%± ()()"
 	expected := false
-	result := mainRegexValidator.IsStringValid(postcode)
+	result := mainRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -123,11 +123,11 @@ func Test_IsStringValid__MainRegex_WithNonMatchingString(t *testing.T) {
 }
 
 // expected: false
-// call IsStringValid, the validator will use the "AA99_exclusionRegex" and be given a string that matches
+// call IsStringValid, the validator will use the "AA99_exclusionRegex_test" and be given a string that matches
 func Test_IsStringValid__AA99ExclusionRegex_WithMatchingString(t *testing.T) {
 	postcode := "FY10 4PL"
 	expected := false
-	result := AA99_exclusionRegexValidator.IsStringValid(postcode)
+	result := AA99_exclusionRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -136,11 +136,11 @@ func Test_IsStringValid__AA99ExclusionRegex_WithMatchingString(t *testing.T) {
 }
 
 // expected: true
-// call IsStringValid, the validator will use the "AA99_exclusionRegex" and be given a string that does not match
+// call IsStringValid, the validator will use the "AA99_exclusionRegex_test" and be given a string that does not match
 func Test_IsStringValid__AA99ExclusionRegex_WithNonMatchingString(t *testing.T) {
 	postcode := "EC1A 1BB"
 	expected := true
-	result := AA99_exclusionRegexValidator.IsStringValid(postcode)
+	result := AA99_exclusionRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -149,11 +149,11 @@ func Test_IsStringValid__AA99ExclusionRegex_WithNonMatchingString(t *testing.T) 
 }
 
 // expected: false
-// call IsStringValid, the validator will use the "AA9_exclusionRegex" and be given a string that matches
+// call IsStringValid, the validator will use the "AA9_exclusionRegex_test" and be given a string that matches
 func Test_IsStringValid__AA9ExclusionRegex_WithMatchingString(t *testing.T) {
 	postcode := "SO1 4QQ"
 	expected := false
-	result := AA9_exclusionRegexValidator.IsStringValid(postcode)
+	result := AA9_exclusionRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -162,11 +162,11 @@ func Test_IsStringValid__AA9ExclusionRegex_WithMatchingString(t *testing.T) {
 }
 
 // expected: true
-// call IsStringValid, the validator will use the "AA9_exclusionRegex" and be given a string that does not match
+// call IsStringValid, the validator will use the "AA9_exclusionRegex_test" and be given a string that does not match
 func Test_IsStringValid__AA9ExclusionRegex_WithNonMatchingString(t *testing.T) {
 	postcode := "EC1A 1BB"
 	expected := true
-	result := AA9_exclusionRegexValidator.IsStringValid(postcode)
+	result := AA9_exclusionRegexValidator_test.IsStringValid(postcode)
 
 	if result != expected {
 		error := fmt.Sprintf("Given string: %s, Expected: %t   got: %t", postcode, expected, result)
@@ -199,9 +199,9 @@ func Test_AddRegexValidator(t *testing.T) {
 	expected := true
 	result := false
 
-	reValidator1 := mainRegexValidator
-	reValidator2 := AA99_exclusionRegexValidator
-	reValidator3 := AA9_exclusionRegexValidator
+	reValidator1 := mainRegexValidator_test
+	reValidator2 := AA99_exclusionRegexValidator_test
+	reValidator3 := AA9_exclusionRegexValidator_test
 
 	reValidGroup := NewRegexValidatorGroup()
 
@@ -237,9 +237,9 @@ func Test_GroupIsStringValid_GivenValidStrings(t *testing.T) {
 	expected := true
 	result := false
 
-	reValidator1 := mainRegexValidator
-	reValidator2 := AA99_exclusionRegexValidator
-	reValidator3 := AA9_exclusionRegexValidator
+	reValidator1 := mainRegexValidator_test
+	reValidator2 := AA99_exclusionRegexValidator_test
+	reValidator3 := AA9_exclusionRegexValidator_test
 
 	reValidGroup := NewRegexValidatorGroup()
 	reValidGroup.AddRegexValidator(reValidator1)
@@ -248,8 +248,14 @@ func Test_GroupIsStringValid_GivenValidStrings(t *testing.T) {
 
 	postcodes := []string{"EC1A 1BB",
 		"W1A 0AX",
-		"BD5 7DQ",
-		"GIR 0AA"}
+		"M1 1AE",
+		"B33 8TH",
+		"CR2 6XH",
+		"DN55 1PT",
+		"GIR 0AA",
+		"SO10 9AA",
+		"FY9 9AA",
+		"WC1A 9AA"}
 
 	for _, element := range postcodes {
 		result = reValidGroup.GroupIsStringValid(element)
@@ -264,14 +270,14 @@ func Test_GroupIsStringValid_GivenValidStrings(t *testing.T) {
 // expected: false
 // call GroupIsStringValid on a series of invalid postcodes, the RegexValidatorGroup contains the 3
 // RegexValidators defined at the top of the testing area - in particular this test should return
-// postcodes "FY10 4PL" & "SO1 4QQ" as being invalid and the mainRegexValidator cannot do this by itself
+// postcodes "FY10 4PL" & "SO1 4QQ" as being invalid and the mainRegexValidator_test cannot do this by itself
 func Test_GroupIsStringValid_GivenInvalidStrings(t *testing.T) {
 	expected := false
 	result := false
 
-	reValidator1 := mainRegexValidator
-	reValidator2 := AA99_exclusionRegexValidator
-	reValidator3 := AA9_exclusionRegexValidator
+	reValidator1 := mainRegexValidator_test
+	reValidator2 := AA99_exclusionRegexValidator_test
+	reValidator3 := AA9_exclusionRegexValidator_test
 
 	reValidGroup := NewRegexValidatorGroup()
 	reValidGroup.AddRegexValidator(reValidator1)
