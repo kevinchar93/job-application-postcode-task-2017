@@ -12,6 +12,12 @@ func errorExit(str string, code int) {
 	os.Exit(code)
 }
 
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
 func main() {
 
 	// get the file name sent in via the command line flag ------------------------------------------------
@@ -33,8 +39,13 @@ func main() {
 	}
 
 	// use the file name to find the file and open it -----------------------------------------------------
+	csvFile, err := os.Open(path)
+	check(err)
 
-	// OPTIONAL: untar the file if there exists a library to do so ----------------------------------------
+	defer func() {
+		err := csvFile.Close()
+		check(err)
+	}()
 
 	// batch read the file line by line (Read 10,000 at a time, and fill up 10k structs) ------------------
 
