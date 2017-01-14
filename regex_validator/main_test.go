@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func Test_IsStringValid__NewImportItem(t *testing.T) {
+func Test_IsStringValid__NewImportRecord(t *testing.T) {
 
 	expected := true
 	result := false
@@ -20,13 +20,13 @@ func Test_IsStringValid__NewImportItem(t *testing.T) {
 		[]string{"472843", "DH4 7DU"}}
 
 	for _, element := range testRecords {
-		item := NewImportItem(element)
+		item := NewImportRecord(element)
 
 		num, _ := strconv.Atoi(element[0])
 		result = item.beenValidated == false && item.isValid == false && item.postcode == element[1] && item.rowId == uint32(num)
 
 		if result != expected {
-			error := fmt.Sprintf("Given NewImportItem, Expected: %t   got: %t", expected, result)
+			error := fmt.Sprintf("Given NewImportRecord, Expected: %t   got: %t", expected, result)
 			t.Error(error)
 		}
 	}
