@@ -77,33 +77,51 @@ func main() {
 	}
 
 	// write each collection to a CSV file ----------------------------------------------------------------
+	writeOutputFiles(columnNames, validImportRecs, invalidImportRecs)
+
+}
+
+func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportRecord) {
 	// create and write to an output file
-	invalidImportsOutFile, err := os.Create("failed_validation.csv")
+	invalidOutfile, err := os.Create("failed_validation.csv")
+	check(err)
+	validOutfile, err := os.Create("succeeded_validation.csv")
 	check(err)
 
-	// defer closing of the output file until the end of main
+	// defer closing of the output files until the end of the func
 	defer func() {
-		if e := invalidImportsOutFile.Close(); err != nil {
+		if e := invalidOutfile.Close(); e != nil {
+			check(e)
+		}
+		if e := validOutfile.Close(); e != nil {
 			check(e)
 		}
 	}()
 
-	// create a new buffered writer to create the output file
-	invalidRecWriter := bufio.NewWriter(invalidImportsOutFile)
+	// create a two buffered writers to create the output files
+	invalidRecWriter := bufio.NewWriter(invalidOutfile)
+	validRecWriter := bufio.NewWriter(validOutfile)
 
 	// write the column names first
 	_, err = fmt.Fprintf(invalidRecWriter, "%s,%s\n", columnNames[0], columnNames[1])
 	check(err)
+	_, err = fmt.Fprintf(validRecWriter, "%s,%s\n", columnNames[0], columnNames[1])
+	check(err)
 
-	// write each record usiing our writer
-	for _, elemement := range invalidImportRecs {
-		_, e := fmt.Fprintf(invalidRecWriter, "%d,%s\n", elemement.rowId, elemement.postcode)
+	// write each record usiing our writers
+	for _, element := range invalidRecs {
+		_, e := fmt.Fprintf(invalidRecWriter, "%d,%s\n", element.rowId, element.postcode)
+		check(e)
+	}
+
+	for _, element := range validRecs {
+		_, e := fmt.Fprintf(validRecWriter, "%d,%s\n", element.rowId, element.postcode)
 		check(e)
 	}
 
 	// write any buffered data to writer before we finish
 	invalidRecWriter.Flush()
-
+	validRecWriter.Flush()
 }
 
 func getCommandLineArgs() (string, int) {
