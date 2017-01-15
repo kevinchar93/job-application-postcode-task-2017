@@ -32,3 +32,4 @@ create profile of cpu a few times and a memory profile to check memory usage was
 checked over profiling results to find out which bits of the program were taking the most time
 made a list of functions an ordered according to % of cpu time each Took
 looked into making functions that take most cpu time run faster csv.Reader.Read in particular
+changed csv.Reader.Read to a bufio.Reader.ReadString function call reducing time it takes to read from 47% to about 39%
