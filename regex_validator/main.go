@@ -16,6 +16,7 @@ import (
 const (
 	BATCH_SIZE_DEFAULT int = 10000
 	FIELDS_PER_RECORD  int = 2
+	CHAN_BUFFER_SIZE   int = 4096
 )
 
 func main() {
@@ -24,7 +25,7 @@ func main() {
 	startTime := time.Now()
 
 	// get the file name sent in via the command line flag ------------------------------------------------
-	path, batchSize, showReport := getCommandLineArgs()
+	path, showReport := getCommandLineArgs()
 
 	// use the file name to find the file and open it -----------------------------------------------------
 	csvFile, err := os.Open(path)
@@ -57,32 +58,30 @@ func main() {
 	// keep processing in batches
 	completed := false
 	for !completed {
-		for i := 0; i < batchSize; i++ {
-			// read a record from each line in the csv file
-			tempLine, e := bufReader.ReadString('\n')
+		// read a record from each line in the csv file
+		tempLine, e := bufReader.ReadString('\n')
 
-			// reading is completed once we reach the end of the file
-			if e == io.EOF {
-				completed = true
-				break
-			}
-			check(e)
+		// reading is completed once we reach the end of the file
+		if e == io.EOF {
+			completed = true
+			break
+		}
+		check(e)
 
-			// split the string at the comma and turn it into a string slice, trim any space from each string
-			res := strings.Split(tempLine, ",")
-			currRecord := []string{strings.TrimSpace(res[0]), strings.TrimSpace(res[1])}
+		// split the string at the comma and turn it into a string slice, trim any space from each string
+		res := strings.Split(tempLine, ",")
+		currRecord := []string{strings.TrimSpace(res[0]), strings.TrimSpace(res[1])}
 
-			// create an ImportRecord from each string slice (currRecord) & check to see if the record's postcode is valid
-			importRec := NewImportRecord(currRecord)
-			importRec.isValid = validator.GroupIsStringValid(importRec.postcode)
-			importRec.beenValidated = true
+		// create an ImportRecord from each string slice (currRecord) & check to see if the record's postcode is valid
+		importRec := NewImportRecord(currRecord)
+		importRec.isValid = validator.GroupIsStringValid(importRec.postcode)
+		importRec.beenValidated = true
 
-			// sort the ImportRecords based on their validity
-			if importRec.isValid {
-				validImportRecs = append(validImportRecs, importRec)
-			} else {
-				invalidImportRecs = append(invalidImportRecs, importRec)
-			}
+		// sort the ImportRecords based on their validity
+		if importRec.isValid {
+			validImportRecs = append(validImportRecs, importRec)
+		} else {
+			invalidImportRecs = append(invalidImportRecs, importRec)
 		}
 	}
 
@@ -159,12 +158,9 @@ func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportReco
 	validRecWriter.Flush()
 }
 
-func getCommandLineArgs() (string, int, bool) {
+func getCommandLineArgs() (string, bool) {
 	var path string
 	flag.StringVar(&path, "file", "", "the location of the .csv file")
-
-	var batchSize int
-	flag.IntVar(&batchSize, "batch-size", BATCH_SIZE_DEFAULT, "how many records the program will process at one time")
 
 	var showReport bool
 	flag.BoolVar(&showReport, "report", false, "turn on to show a short report upon completion")
@@ -184,7 +180,7 @@ func getCommandLineArgs() (string, int, bool) {
 		errorExit("File must have the extension .csv", 1)
 	}
 
-	return path, batchSize, showReport
+	return path, showReport
 }
 
 func createMainRegexValidatorGroup() *RegexValidatorGroup {
