@@ -9,6 +9,8 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
+	"time"
 )
 
 const (
@@ -18,8 +20,11 @@ const (
 
 func main() {
 
+	// start timer
+	startTime := time.Now()
+
 	// get the file name sent in via the command line flag ------------------------------------------------
-	path, batchSize := getCommandLineArgs()
+	path, batchSize, showReport := getCommandLineArgs()
 
 	// use the file name to find the file and open it -----------------------------------------------------
 	csvFile, err := os.Open(path)
@@ -42,8 +47,8 @@ func main() {
 	check(err)
 
 	// make slices to hold the valid and invalid ImportRecords
-	validImportRecs := make([]*ImportRecord, 0)
-	invalidImportRecs := make([]*ImportRecord, 0)
+	validImportRecs := NewImportRecordGroup()
+	invalidImportRecs := NewImportRecordGroup()
 
 	// create the regex validator group we will use to validate the postcodes
 	validator := createMainRegexValidatorGroup()
@@ -54,13 +59,13 @@ func main() {
 		for i := 0; i < batchSize; i++ {
 			// read a record from each line in the csv file
 			currRecord, e := csvReader.Read()
+
+			// reading is completed once we reach the end of the file
 			if e == io.EOF {
 				completed = true
 				break
 			}
 			check(e)
-
-			// reading is completed once we reach the end of the file
 
 			// create an ImportRecord from each csv record & check to see if the record's postcode is valid
 			importRec := NewImportRecord(currRecord)
@@ -76,9 +81,34 @@ func main() {
 		}
 	}
 
+	// sort the ImportRecords by their rowId
+	sort.Sort(validImportRecs)
+	sort.Sort(invalidImportRecs)
+
 	// write each collection to a CSV file ----------------------------------------------------------------
 	writeOutputFiles(columnNames, validImportRecs, invalidImportRecs)
 
+	if showReport {
+		printCompletionReport(startTime, len(validImportRecs), len(invalidImportRecs))
+	}
+}
+
+func printCompletionReport(startTime time.Time, numValid, numInvalid int) {
+	// get time since beginning
+	elapsed := time.Since(startTime)
+
+	// output short final report
+	speed := float64((numValid + numInvalid)) / elapsed.Seconds()
+	fmt.Println("-------------------------------------")
+	fmt.Println("         Completion Report")
+	fmt.Println("-------------------------------------")
+	fmt.Printf("Total records: %d\n", numValid+numInvalid)
+	fmt.Printf("Succeeded: %d\n", numValid)
+	fmt.Printf("Failed: %d\n", numInvalid)
+	fmt.Println("-------------------------------------")
+	fmt.Printf("Took: %s\n", elapsed)
+	fmt.Printf("Speed: %.2f records per second\n", speed)
+	fmt.Println("-------------------------------------")
 }
 
 func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportRecord) {
@@ -124,12 +154,15 @@ func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportReco
 	validRecWriter.Flush()
 }
 
-func getCommandLineArgs() (string, int) {
+func getCommandLineArgs() (string, int, bool) {
 	var path string
 	flag.StringVar(&path, "file", "", "the location of the .csv file")
 
 	var batchSize int
 	flag.IntVar(&batchSize, "batch-size", BATCH_SIZE_DEFAULT, "how many records the program will process at one time")
+
+	var showReport bool
+	flag.BoolVar(&showReport, "report", false, "turn on to show a short report upon completion")
 
 	flag.Parse()
 
@@ -146,7 +179,7 @@ func getCommandLineArgs() (string, int) {
 		errorExit("File must have the extension .csv", 1)
 	}
 
-	return path, batchSize
+	return path, batchSize, showReport
 }
 
 func createMainRegexValidatorGroup() *RegexValidatorGroup {

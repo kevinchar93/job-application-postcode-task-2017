@@ -31,3 +31,21 @@ func NewImportRecord(record []string) *ImportRecord {
 		beenValidated: false,
 		isValid:       false}
 }
+
+type ImportRecordGroup []*ImportRecord
+
+func NewImportRecordGroup() ImportRecordGroup {
+	return ImportRecordGroup(make([]*ImportRecord, 0))
+}
+
+func (coll ImportRecordGroup) Len() int {
+	return len(coll)
+}
+
+func (coll ImportRecordGroup) Swap(i, j int) {
+	coll[i], coll[j] = coll[j], coll[i]
+}
+
+func (coll ImportRecordGroup) Less(i, j int) bool {
+	return coll[i].rowId < coll[j].rowId
+}
