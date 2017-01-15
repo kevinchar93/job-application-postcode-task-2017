@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/csv"
 	"flag"
 	"fmt"
 	"io"
@@ -10,6 +9,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -38,13 +38,14 @@ func main() {
 
 	// batch read the file line by line (Read 10,000 at a time, and fill up 10k structs) ------------------
 
-	// create a reader that can read csv files , init the readers values
-	csvReader := csv.NewReader(csvFile)
-	csvReader.FieldsPerRecord = FIELDS_PER_RECORD
+	// create a reader to read csv files
+	bufReader := bufio.NewReader(csvFile)
 
-	// first record in the csv file will be titles so read it and discard the record
-	columnNames, err := csvReader.Read()
+	// first record in the csv file will be titles so read it and keep the result for output titles
+	tempLine, err := bufReader.ReadString('\n')
 	check(err)
+	res := strings.Split(tempLine, ",")
+	columnNames := []string{strings.TrimSpace(res[0]), strings.TrimSpace(res[1])}
 
 	// make slices to hold the valid and invalid ImportRecords
 	validImportRecs := NewImportRecordGroup()
@@ -58,7 +59,7 @@ func main() {
 	for !completed {
 		for i := 0; i < batchSize; i++ {
 			// read a record from each line in the csv file
-			currRecord, e := csvReader.Read()
+			tempLine, e := bufReader.ReadString('\n')
 
 			// reading is completed once we reach the end of the file
 			if e == io.EOF {
@@ -67,7 +68,11 @@ func main() {
 			}
 			check(e)
 
-			// create an ImportRecord from each csv record & check to see if the record's postcode is valid
+			// split the string at the comma and turn it into a string slice, trim any space from each string
+			res := strings.Split(tempLine, ",")
+			currRecord := []string{strings.TrimSpace(res[0]), strings.TrimSpace(res[1])}
+
+			// create an ImportRecord from each string slice (currRecord) & check to see if the record's postcode is valid
 			importRec := NewImportRecord(currRecord)
 			importRec.isValid = validator.GroupIsStringValid(importRec.postcode)
 			importRec.beenValidated = true
