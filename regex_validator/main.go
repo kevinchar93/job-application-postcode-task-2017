@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"flag"
 	"fmt"
@@ -87,26 +88,22 @@ func main() {
 		}
 	}()
 
-	// create a new csv writer using the output file
-	csvInvalidRecWriter := csv.NewWriter(invalidImportsOutFile)
-	if err := csvInvalidRecWriter.Write(columnNames); err != nil {
-		check(err)
+	// create a new buffered writer to create the output file
+	invalidRecWriter := bufio.NewWriter(invalidImportsOutFile)
+
+	// write the column names first
+	_, err = fmt.Fprintf(invalidRecWriter, "%s,%s\n", columnNames[0], columnNames[1])
+	check(err)
+
+	// write each record usiing our writer
+	for _, elemement := range invalidImportRecs {
+		_, e := fmt.Fprintf(invalidRecWriter, "%d,%s\n", elemement.rowId, elemement.postcode)
+		check(e)
 	}
 
-	// write each record using our writer
-	for _, element := range invalidImportRecs {
-		tempRec := []string{fmt.Sprintf("%d", element.rowId), element.postcode}
-		if err := csvInvalidRecWriter.Write(tempRec); err != nil {
-			check(err)
-		}
-	}
+	// write any buffered data to writer before we finish
+	invalidRecWriter.Flush()
 
-	// write any buffered data to underlying writer
-	csvInvalidRecWriter.Flush()
-
-	if err := csvInvalidRecWriter.Error(); err != nil {
-		check(err)
-	}
 }
 
 func getCommandLineArgs() (string, int) {
