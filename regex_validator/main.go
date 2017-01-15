@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/csv"
 	"flag"
 	"fmt"
@@ -9,36 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"strconv"
 )
-
-// type to represet a record from an imported .csv file , rowId & postcodes or the record is stored in
-// their native types rather than both being stored as strings
-type ImportRecord struct {
-	rowId         uint32
-	postcode      string
-	beenValidated bool
-	isValid       bool
-}
-
-// takes a record read by a cvs reader (which creates a string slice of each record) and creates a properly
-// typed ImportRecord from this slice
-func NewImportRecord(record []string) *ImportRecord {
-	if len(record) > FIELDS_PER_RECORD || len(record) < FIELDS_PER_RECORD {
-		panic("invalid record received")
-	}
-
-	const ROW_ID_IDX = 0
-	const POSTCODE_IDX = 1
-
-	rowIdInt, err := strconv.ParseInt(record[ROW_ID_IDX], 10, 32)
-	check(err)
-
-	return &ImportRecord{rowId: uint32(rowIdInt),
-		postcode:      record[POSTCODE_IDX],
-		beenValidated: false,
-		isValid:       false}
-}
 
 const (
 	BATCH_SIZE_DEFAULT int = 10000
@@ -67,7 +37,7 @@ func main() {
 	csvReader.FieldsPerRecord = FIELDS_PER_RECORD
 
 	// first record in the csv file will be titles so read it and discard the record
-	_, err = csvReader.Read()
+	columnNames, err := csvReader.Read()
 	check(err)
 
 	// make slices to hold the valid and invalid ImportRecords
@@ -119,7 +89,7 @@ func main() {
 
 	// create a new csv writer using the output file
 	csvInvalidRecWriter := csv.NewWriter(invalidImportsOutFile)
-	if err := csvInvalidRecWriter.Write([]string{"row_id", "postcode"}); err != nil {
+	if err := csvInvalidRecWriter.Write(columnNames); err != nil {
 		check(err)
 	}
 
@@ -137,9 +107,6 @@ func main() {
 	if err := csvInvalidRecWriter.Error(); err != nil {
 		check(err)
 	}
-
-	fmt.Print("Press 'Enter' to continue...")
-	bufio.NewReader(os.Stdin).ReadBytes('\n')
 }
 
 func getCommandLineArgs() (string, int) {
