@@ -4,22 +4,25 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"github.com/pkg/profile"
 	"io"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
 const (
 	BATCH_SIZE_DEFAULT int = 10000
 	FIELDS_PER_RECORD  int = 2
-	CHAN_BUFFER_SIZE   int = 4096
+	CHAN_DEFAULT_SIZE  int = 2000
 )
 
 func main() {
+	defer profile.Start(profile.CPUProfile).Stop()
 
 	// start timer
 	startTime := time.Now()
@@ -48,46 +51,31 @@ func main() {
 	res := strings.Split(tempLine, ",")
 	columnNames := []string{strings.TrimSpace(res[0]), strings.TrimSpace(res[1])}
 
-	// make slices to hold the valid and invalid ImportRecords
-	validImportRecs := NewImportRecordGroup()
-	invalidImportRecs := NewImportRecordGroup()
-
 	// create the regex validator group we will use to validate the postcodes
 	validator := createMainRegexValidatorGroup()
 
-	// keep processing in batches
-	completed := false
-	for !completed {
-		// read a record from each line in the csv file
-		tempLine, e := bufReader.ReadString('\n')
+	// we need a wait group to sync our go routines that are running in parallel
+	var readRecordWG sync.WaitGroup
 
-		// reading is completed once we reach the end of the file
-		if e == io.EOF {
-			completed = true
-			break
-		}
-		check(e)
+	// run a number of go routines in a parallel pipelines pattern [readFromInputFile_go -> createInputRecords_go -> validateInputRecords_go]
+	// each function does its job concurrently until there is no more work to do, the WaitGroup readRecordWG sycncronises them with main()
+	readLines_chan := readFromInputFile_go(&readRecordWG, bufReader)
+	createdInputRecords_chan := createInputRecords_go(&readRecordWG, readLines_chan)
+	validImportRecs, invalidImportRecs := validateInputRecords(createdInputRecords_chan, validator)
 
-		// split the string at the comma and turn it into a string slice, trim any space from each string
-		res := strings.Split(tempLine, ",")
-		currRecord := []string{strings.TrimSpace(res[0]), strings.TrimSpace(res[1])}
+	// make the main function wait until all functions in the "readRecordWG" have completed - we need all records to be validated before sorting
+	readRecordWG.Wait()
 
-		// create an ImportRecord from each string slice (currRecord) & check to see if the record's postcode is valid
-		importRec := NewImportRecord(currRecord)
-		importRec.isValid = validator.GroupIsStringValid(importRec.postcode)
-		importRec.beenValidated = true
-
-		// sort the ImportRecords based on their validity
-		if importRec.isValid {
-			validImportRecs = append(validImportRecs, importRec)
-		} else {
-			invalidImportRecs = append(invalidImportRecs, importRec)
-		}
-	}
+	// run the sorting of each group in its own routine & sync with a wait group
+	var sortRecordWG sync.WaitGroup
+	sortRecordWG.Add(2)
 
 	// sort the ImportRecords by their rowId
-	sort.Sort(validImportRecs)
-	sort.Sort(invalidImportRecs)
+	go func() { sort.Sort(validImportRecs); sortRecordWG.Done() }()
+	go func() { sort.Sort(invalidImportRecs); sortRecordWG.Done() }()
+
+	// wait for sorting to complete
+	sortRecordWG.Wait()
 
 	// write each collection to a CSV file ----------------------------------------------------------------
 	writeOutputFiles(columnNames, validImportRecs, invalidImportRecs)
@@ -95,6 +83,83 @@ func main() {
 	if showReport {
 		printCompletionReport(startTime, len(validImportRecs), len(invalidImportRecs))
 	}
+}
+
+// _go to signal that func is concurrent & uses go keyword
+func validateInputRecords(in <-chan *ImportRecord, val *RegexValidatorGroup) (validGrp, invalidGrp ImportRecordGroup) {
+
+	// make out groups of import records
+	valid := NewImportRecordGroup()
+	invalid := NewImportRecordGroup()
+
+	// keep working as long as the input channel is open
+	for rec := range in {
+		rec.isValid = val.GroupIsStringValid(rec.postcode)
+		rec.beenValidated = true
+
+		// sort the ImportRecords based on their validity
+		if rec.isValid {
+			valid = append(valid, rec)
+		} else {
+			invalid = append(invalid, rec)
+		}
+	}
+
+	return valid, invalid
+}
+
+func createInputRecords_go(wg *sync.WaitGroup, in <-chan []string) <-chan *ImportRecord {
+	// make out output channel & increment the WaitGroup
+	wg.Add(1)
+	out := make(chan *ImportRecord, CHAN_DEFAULT_SIZE)
+
+	// the creation of new InputRecord structs is done in its own go routine
+	go func() {
+		// keep working as long as the input channel is open
+		for strRec := range in {
+			// create an import records from the string slice read from the channel "in" & put it into the outchannel
+			out <- NewImportRecord(strRec)
+		}
+		// close out output channel upon completion & signal completion to the WaitGroup
+		close(out)
+		wg.Done()
+	}()
+
+	// return the channel that we will be putting created ImportRecords into
+	return out
+}
+
+func readFromInputFile_go(wg *sync.WaitGroup, reader *bufio.Reader) <-chan []string {
+	// make our output channel & increment the WaitGroup
+	wg.Add(1)
+	out := make(chan []string, CHAN_DEFAULT_SIZE)
+	completed := false
+
+	// reading of the file runs is done in its own go routine
+	go func() {
+		for !completed {
+			// read a record from each line in the csv file & reading complete when we hit EOF
+			line, e := reader.ReadString('\n')
+			if e == io.EOF {
+				completed = true
+				break
+			}
+			check(e)
+
+			// split the string at the comma and turn it into a string slice, trim any space from each string
+			res := strings.Split(line, ",")
+			record := []string{strings.TrimSpace(res[0]), strings.TrimSpace(res[1])}
+
+			// place each read record into the channel to send to consumer routine
+			out <- record
+		}
+		// close the channel when we are finished reading & signal completion to the wait group
+		close(out)
+		wg.Done()
+	}()
+
+	// return the channel that we will be putting the lines we have read into
+	return out
 }
 
 func printCompletionReport(startTime time.Time, numValid, numInvalid int) {
@@ -116,51 +181,62 @@ func printCompletionReport(startTime time.Time, numValid, numInvalid int) {
 }
 
 func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportRecord) {
-	// create and write to an output file
-	invalidOutfile, err := os.Create("failed_validation.csv")
-	check(err)
-	validOutfile, err := os.Create("succeeded_validation.csv")
-	check(err)
 
-	// defer closing of the output files until the end of the func
-	defer func() {
-		if e := invalidOutfile.Close(); e != nil {
+	// write to both output files in parallel & use WaitGroup to sync
+	var writerWG sync.WaitGroup
+
+	writerWG.Add(2)
+	go func() {
+		defer writerWG.Done()
+		// create a valid record output file & buffered writer to create said file
+		validOutfile, err := os.Create("succeeded_validation.csv")
+		check(err)
+		validRecWriter := bufio.NewWriter(validOutfile)
+		// write the column names first
+		_, err = fmt.Fprintf(validRecWriter, "%s,%s\n", columnNames[0], columnNames[1])
+		check(err)
+		for _, element := range validRecs {
+			_, e := fmt.Fprintf(validRecWriter, "%d,%s\n", element.rowId, element.postcode)
 			check(e)
 		}
+
+		// flush & close file now we are finished
+		validRecWriter.Flush()
 		if e := validOutfile.Close(); e != nil {
 			check(e)
 		}
 	}()
 
-	// create a two buffered writers to create the output files
-	invalidRecWriter := bufio.NewWriter(invalidOutfile)
-	validRecWriter := bufio.NewWriter(validOutfile)
+	go func() {
+		defer writerWG.Done()
+		// create a invalid record output file & buffered writer to create said file
+		invalidOutfile, err := os.Create("failed_validation.csv")
+		check(err)
+		invalidRecWriter := bufio.NewWriter(invalidOutfile)
 
-	// write the column names first
-	_, err = fmt.Fprintf(invalidRecWriter, "%s,%s\n", columnNames[0], columnNames[1])
-	check(err)
-	_, err = fmt.Fprintf(validRecWriter, "%s,%s\n", columnNames[0], columnNames[1])
-	check(err)
+		// write the column names first
+		_, err = fmt.Fprintf(invalidRecWriter, "%s,%s\n", columnNames[0], columnNames[1])
+		check(err)
 
-	// write each record usiing our writers
-	for _, element := range invalidRecs {
-		_, e := fmt.Fprintf(invalidRecWriter, "%d,%s\n", element.rowId, element.postcode)
-		check(e)
-	}
+		// write each record usiing our writers
+		for _, element := range invalidRecs {
+			_, e := fmt.Fprintf(invalidRecWriter, "%d,%s\n", element.rowId, element.postcode)
+			check(e)
+		}
 
-	for _, element := range validRecs {
-		_, e := fmt.Fprintf(validRecWriter, "%d,%s\n", element.rowId, element.postcode)
-		check(e)
-	}
+		// flush & close file now we are finished
+		invalidRecWriter.Flush()
+		if e := invalidOutfile.Close(); e != nil {
+			check(e)
+		}
+	}()
 
-	// write any buffered data to writer before we finish
-	invalidRecWriter.Flush()
-	validRecWriter.Flush()
+	writerWG.Wait()
 }
 
 func getCommandLineArgs() (string, bool) {
 	var path string
-	flag.StringVar(&path, "file", "", "the location of the .csv file")
+	flag.StringVar(&path, "file", "/Users/Kevin/Desktop/nhs_digital_job/import_data.csv", "the location of the .csv file")
 
 	var showReport bool
 	flag.BoolVar(&showReport, "report", false, "turn on to show a short report upon completion")
