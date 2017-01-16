@@ -225,11 +225,15 @@ func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportReco
 		validOutfile, err := os.Create("succeeded_validation.csv")
 		check(err)
 		validRecWriter := bufio.NewWriter(validOutfile)
+
 		// write the column names first
 		_, err = fmt.Fprintf(validRecWriter, "%s,%s\n", columnNames[0], columnNames[1])
 		check(err)
+
+		// write each record using our writer
 		for _, element := range validRecs {
-			_, e := fmt.Fprintf(validRecWriter, "%d,%s\n", element.rowId, element.postcode)
+			temp := fmt.Sprintf("%d,%s", element.rowId, element.postcode)
+			_, e := fmt.Fprintln(validRecWriter, temp)
 			check(e)
 		}
 
@@ -251,9 +255,10 @@ func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportReco
 		_, err = fmt.Fprintf(invalidRecWriter, "%s,%s\n", columnNames[0], columnNames[1])
 		check(err)
 
-		// write each record usiing our writers
+		// write each record using our writer
 		for _, element := range invalidRecs {
-			_, e := fmt.Fprintf(invalidRecWriter, "%d,%s\n", element.rowId, element.postcode)
+			temp := fmt.Sprintf("%d,%s", element.rowId, element.postcode)
+			_, e := fmt.Fprintln(invalidRecWriter, temp)
 			check(e)
 		}
 
