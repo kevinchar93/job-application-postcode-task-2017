@@ -140,12 +140,14 @@ func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportReco
 
 	// write each record usiing our writers
 	for _, element := range invalidRecs {
-		_, e := fmt.Fprintf(invalidRecWriter, "%d,%s\n", element.rowId, element.postcode)
+		temp := fmt.Sprintf("%d,%s", element.rowId, element.postcode)
+		_, e := fmt.Fprintln(invalidRecWriter, temp)
 		check(e)
 	}
 
 	for _, element := range validRecs {
-		_, e := fmt.Fprintf(validRecWriter, "%d,%s\n", element.rowId, element.postcode)
+		temp := fmt.Sprintf("%d,%s", element.rowId, element.postcode)
+		_, e := fmt.Fprintln(validRecWriter, temp)
 		check(e)
 	}
 
