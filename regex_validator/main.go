@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"github.com/pkg/profile"
 	"io"
 	"os"
 	"path/filepath"
@@ -22,7 +21,6 @@ const (
 )
 
 func main() {
-	defer profile.Start(profile.CPUProfile).Stop()
 
 	// start timer
 	startTime := time.Now()
@@ -88,22 +86,57 @@ func main() {
 // _go to signal that func is concurrent & uses go keyword
 func validateInputRecords(in <-chan *ImportRecord, val *RegexValidatorGroup) (validGrp, invalidGrp ImportRecordGroup) {
 
-	// make out groups of import records
+	// make output groups of import records
 	valid := NewImportRecordGroup()
 	invalid := NewImportRecordGroup()
 
-	// keep working as long as the input channel is open
-	for rec := range in {
-		rec.isValid = val.GroupIsStringValid(rec.postcode)
-		rec.beenValidated = true
+	var validateWg sync.WaitGroup
+	var appendWg sync.WaitGroup
+	validateWg.Add(3)
 
-		// sort the ImportRecords based on their validity
-		if rec.isValid {
+	// channels made to store the ImportRecords as they are sorted
+	validChan := make(chan *ImportRecord, CHAN_DEFAULT_SIZE)
+	invalidChan := make(chan *ImportRecord, CHAN_DEFAULT_SIZE)
+
+	// create 3 go routines to validate the records
+	for i := 0; i < 3; i++ {
+		go func() {
+			// keep working as long as the input channel is open
+			for rec := range in {
+				rec.isValid = val.GroupIsStringValid(rec.postcode)
+
+				// sort the ImportRecords based on their validity
+				if rec.isValid {
+					validChan <- rec
+				} else {
+					invalidChan <- rec
+				}
+			}
+			validateWg.Done()
+		}()
+	}
+
+	// create two go routines that collect the ImportRecords from each of the channels
+	appendWg.Add(2)
+	go func() {
+		for rec := range validChan {
 			valid = append(valid, rec)
-		} else {
+		}
+		appendWg.Done()
+	}()
+
+	go func() {
+		for rec := range invalidChan {
 			invalid = append(invalid, rec)
 		}
-	}
+		appendWg.Done()
+	}()
+
+	// we must wait for the validate WaitGroup to complete before we close its channels
+	validateWg.Wait()
+	close(validChan)
+	close(invalidChan)
+	appendWg.Wait()
 
 	return valid, invalid
 }
@@ -236,7 +269,7 @@ func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportReco
 
 func getCommandLineArgs() (string, bool) {
 	var path string
-	flag.StringVar(&path, "file", "/Users/Kevin/Desktop/nhs_digital_job/import_data.csv", "the location of the .csv file")
+	flag.StringVar(&path, "file", "", "the location of the .csv file")
 
 	var showReport bool
 	flag.BoolVar(&showReport, "report", false, "turn on to show a short report upon completion")

@@ -23,7 +23,7 @@ func Test_IsStringValid__NewImportRecord(t *testing.T) {
 		item := NewImportRecord(element)
 
 		num, _ := strconv.Atoi(element[0])
-		result = item.beenValidated == false && item.isValid == false && item.postcode == element[1] && item.rowId == uint32(num)
+		result = item.isValid == false && item.postcode == element[1] && item.rowId == uint32(num)
 
 		if result != expected {
 			error := fmt.Sprintf("Given NewImportRecord, Expected: %t   got: %t", expected, result)

@@ -7,10 +7,9 @@ import (
 // type to represet a record from an imported .csv file , rowId & postcodes or the record is stored in
 // their native types rather than both being stored as strings
 type ImportRecord struct {
-	rowId         uint32
-	postcode      string
-	beenValidated bool
-	isValid       bool
+	rowId    uint32
+	postcode string
+	isValid  bool
 }
 
 // takes a record read by a cvs reader (which creates a string slice of each record) and creates a properly
@@ -27,9 +26,8 @@ func NewImportRecord(record []string) *ImportRecord {
 	check(err)
 
 	return &ImportRecord{rowId: uint32(rowIdInt),
-		postcode:      record[POSTCODE_IDX],
-		beenValidated: false,
-		isValid:       false}
+		postcode: record[POSTCODE_IDX],
+		isValid:  false}
 }
 
 type ImportRecordGroup []*ImportRecord
