@@ -33,3 +33,7 @@ checked over profiling results to find out which bits of the program were taking
 made a list of functions an ordered according to % of cpu time each Took
 looked into making functions that take most cpu time run faster csv.Reader.Read in particular
 changed csv.Reader.Read to a bufio.Reader.ReadString function call reducing time it takes to read from 47% to about 39%
+changed program to use parallel pipeline for reading -> creating import records -> validating records
+validation records taking up most cpu time
+parallelized that section letting it run on 3 goroutines and have 2 other routines adding up the results
+significant improvements in wall time made
