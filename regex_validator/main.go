@@ -97,7 +97,8 @@ func main() {
 
 	// write each record usiing our writer
 	for _, elemement := range invalidImportRecs {
-		_, e := fmt.Fprintf(invalidRecWriter, "%d,%s\n", elemement.rowId, elemement.postcode)
+		temp := fmt.Sprintf("%d,%s", elemement.rowId, elemement.postcode)
+		_, e := fmt.Fprintln(invalidRecWriter, temp)
 		check(e)
 	}
 
