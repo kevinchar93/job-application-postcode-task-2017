@@ -32,18 +32,25 @@ func NewImportRecord(record []string) *ImportRecord {
 
 type ImportRecordGroup []*ImportRecord
 
+// create and return a new ImportRecordGroup
 func NewImportRecordGroup() ImportRecordGroup {
 	return ImportRecordGroup(make([]*ImportRecord, 0))
 }
 
+// Implemented sort.Interface to make the type ImportRecordGroup sortable using the sort.Sort func ------
+// returns the length of the ImportRecordGroup
 func (coll ImportRecordGroup) Len() int {
 	return len(coll)
 }
 
+// swaps the items located at "i" & "j" in the ImportRecordGroup
 func (coll ImportRecordGroup) Swap(i, j int) {
 	coll[i], coll[j] = coll[j], coll[i]
 }
 
+// returns a boolean indicating if the item at "i" in the ImportRecordGroup is less than the item at "j"
 func (coll ImportRecordGroup) Less(i, j int) bool {
 	return coll[i].rowId < coll[j].rowId
 }
+
+// ------------------------------------------------------------------------------------------------------

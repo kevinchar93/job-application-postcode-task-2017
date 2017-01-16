@@ -35,7 +35,7 @@ func testSetup() {
 // Unit tests for Task 1 are below ----------------------------------------------------------------------
 
 // expected: false
-//
+// given invalid postcode, Junk
 func Test_GroupIsStringValid__Junk(t *testing.T) {
 	postcode := "$%± ()()"
 	expected := false
@@ -48,7 +48,7 @@ func Test_GroupIsStringValid__Junk(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, Invalid
 func Test_GroupIsStringValid__Invalid(t *testing.T) {
 	postcode := "XX XXX"
 	expected := false
@@ -61,7 +61,7 @@ func Test_GroupIsStringValid__Invalid(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, 	Incorrect inward code length
 func Test_GroupIsStringValid__IncorrectInwardCodeLength(t *testing.T) {
 	postcode := "A1 9A"
 	expected := false
@@ -74,7 +74,7 @@ func Test_GroupIsStringValid__IncorrectInwardCodeLength(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, No space
 func Test_GroupIsStringValid__NoSpace(t *testing.T) {
 	postcode := "LS44PL"
 	expected := false
@@ -87,7 +87,7 @@ func Test_GroupIsStringValid__NoSpace(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, 'Q' in first position
 func Test_GroupIsStringValid__QinFirstPosition(t *testing.T) {
 	postcode := "Q1A 9AA"
 	expected := false
@@ -100,7 +100,7 @@ func Test_GroupIsStringValid__QinFirstPosition(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, 	'V' in first position
 func Test_GroupIsStringValid__VinFirstPosition(t *testing.T) {
 	postcode := "V1A 9AA"
 	expected := false
@@ -113,7 +113,7 @@ func Test_GroupIsStringValid__VinFirstPosition(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, 'X' in first position
 func Test_GroupIsStringValid__XinFirstPosition(t *testing.T) {
 	postcode := "X1A 9BB"
 	expected := false
@@ -126,7 +126,7 @@ func Test_GroupIsStringValid__XinFirstPosition(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, 'I' in second position
 func Test_GroupIsStringValid__IinSecondPosition(t *testing.T) {
 	postcode := "LI10 3QP"
 	expected := false
@@ -139,7 +139,7 @@ func Test_GroupIsStringValid__IinSecondPosition(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, 'J' in second position
 func Test_GroupIsStringValid__JinSecondPosition(t *testing.T) {
 	postcode := "LJ10 3QP"
 	expected := false
@@ -152,7 +152,7 @@ func Test_GroupIsStringValid__JinSecondPosition(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, 'Z' in second position
 func Test_GroupIsStringValid__ZinSecondPosition(t *testing.T) {
 	postcode := "LZ10 3QP"
 	expected := false
@@ -165,7 +165,7 @@ func Test_GroupIsStringValid__ZinSecondPosition(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, 'Q' in third position with 'A9A' structure
 func Test_GroupIsStringValid__QinThirdPositionWithA9Astructure(t *testing.T) {
 	postcode := "A9Q 9AA"
 	expected := false
@@ -178,7 +178,7 @@ func Test_GroupIsStringValid__QinThirdPositionWithA9Astructure(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, 'C' in fourth position with 'AA9A' structure
 func Test_GroupIsStringValid__CinForthPositionWithA9Astructure(t *testing.T) {
 	postcode := "AA9C 9AA"
 	expected := false
@@ -191,7 +191,7 @@ func Test_GroupIsStringValid__CinForthPositionWithA9Astructure(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, Area with only single digit districts
 func Test_GroupIsStringValid__AreaWithOnlySingleDigitDistricts(t *testing.T) {
 	postcode := "FY10 4PL"
 	expected := false
@@ -204,7 +204,7 @@ func Test_GroupIsStringValid__AreaWithOnlySingleDigitDistricts(t *testing.T) {
 }
 
 // expected: false
-//
+// given invalid postcode, Area with only double digit districts
 func Test_GroupIsStringValid__AreaWithOnlyDoubleDigitDistricts(t *testing.T) {
 	postcode := "SO1 4QQ"
 	expected := false
@@ -217,7 +217,7 @@ func Test_GroupIsStringValid__AreaWithOnlyDoubleDigitDistricts(t *testing.T) {
 }
 
 // expected: true
-//
+// check a collection of valid postcodes there should be no problem
 func Test_GroupIsStringValid__NoExpectedProblem(t *testing.T) {
 	expected := true
 	result := false

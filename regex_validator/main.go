@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// give names to all of the constant values we use in the program
 const (
 	BATCH_SIZE_DEFAULT int = 10000
 	FIELDS_PER_RECORD  int = 2
@@ -83,13 +84,17 @@ func main() {
 	}
 }
 
-// _go to signal that func is concurrent & uses go keyword
+// "validateInputRecords" validates the input records in receives on its input chanel "in", to do this it
+// spawns 3 concurrent worker routines which each validate each recored received and places each validated
+// in a channel(valid/invalid) based on the records validity. It also spawns 2 concurrent collector routines that
+// collect records from the valid/invalid channel and places them into seperate ImportRecord slices which are returned
 func validateInputRecords(in <-chan *ImportRecord, val *RegexValidatorGroup) (validGrp, invalidGrp ImportRecordGroup) {
 
 	// make output groups of import records
 	valid := NewImportRecordGroup()
 	invalid := NewImportRecordGroup()
 
+	// we will use these WaitGroups to avoid race conditions between the worker routines and collector routines
 	var validateWg sync.WaitGroup
 	var appendWg sync.WaitGroup
 	validateWg.Add(3)
@@ -118,6 +123,8 @@ func validateInputRecords(in <-chan *ImportRecord, val *RegexValidatorGroup) (va
 
 	// create two go routines that collect the ImportRecords from each of the channels
 	appendWg.Add(2)
+
+	// this routine collects valid ImportRecords
 	go func() {
 		for rec := range validChan {
 			valid = append(valid, rec)
@@ -125,6 +132,7 @@ func validateInputRecords(in <-chan *ImportRecord, val *RegexValidatorGroup) (va
 		appendWg.Done()
 	}()
 
+	// this routine collects invalid ImportRecords
 	go func() {
 		for rec := range invalidChan {
 			invalid = append(invalid, rec)
@@ -136,11 +144,16 @@ func validateInputRecords(in <-chan *ImportRecord, val *RegexValidatorGroup) (va
 	validateWg.Wait()
 	close(validChan)
 	close(invalidChan)
+
+	// the function will finish when the collector routines in "appendWg" have finished
 	appendWg.Wait()
 
 	return valid, invalid
 }
 
+// "createInputRecords_go" takes string slices that it receives on its input channel "in" creates new ImportRecord
+// structs using each string slice, then places each struct on its output channel "out". This is done concurrently
+// "createInputRecords_go" returns its output channel to the caller
 func createInputRecords_go(wg *sync.WaitGroup, in <-chan []string) <-chan *ImportRecord {
 	// make out output channel & increment the WaitGroup
 	wg.Add(1)
@@ -162,6 +175,10 @@ func createInputRecords_go(wg *sync.WaitGroup, in <-chan []string) <-chan *Impor
 	return out
 }
 
+// "readFromInputFile_go" takes a buffered reader and reads the reader's input source line by line. As each
+// line is a record in a csv file each line is split on the comma delimiter and a string slice is  created
+// from the results of the split. Each string slice is put into its output channel "out". This is done concurrently
+// "readFromInputFile_go"
 func readFromInputFile_go(wg *sync.WaitGroup, reader *bufio.Reader) <-chan []string {
 	// make our output channel & increment the WaitGroup
 	wg.Add(1)
@@ -195,6 +212,8 @@ func readFromInputFile_go(wg *sync.WaitGroup, reader *bufio.Reader) <-chan []str
 	return out
 }
 
+// "printCompletionReport" print out a short report consisting of how many records are valid, invalid,
+// the total number of records total execution time & rate of record processing
 func printCompletionReport(startTime time.Time, numValid, numInvalid int) {
 	// get time since beginning
 	elapsed := time.Since(startTime)
@@ -213,6 +232,9 @@ func printCompletionReport(startTime time.Time, numValid, numInvalid int) {
 	fmt.Println("-------------------------------------")
 }
 
+// "writeOutputFiles" takes the column name read from the original input csv file  and ImportRecord slices
+// containing the valid and invalid records. These are used to create the "succeeded_validation.csv" and
+//  "failed_validation.csv" file. Each file is written to concurrently.
 func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportRecord) {
 
 	// write to both output files in parallel & use WaitGroup to sync
@@ -272,6 +294,8 @@ func writeOutputFiles(columnNames []string, validRecs, invalidRecs []*ImportReco
 	writerWG.Wait()
 }
 
+// "getCommandLineArgs" returns what arguments were given on the command line. It will do some error checking
+// to terminate the program if invalid arguments are given
 func getCommandLineArgs() (string, bool) {
 	var path string
 	flag.StringVar(&path, "file", "", "the location of the .csv file")
@@ -297,6 +321,8 @@ func getCommandLineArgs() (string, bool) {
 	return path, showReport
 }
 
+// "createMainRegexValidatorGroup" uses the regex given in the brief to create and return a RegexValidatorGroup
+// which can be used to validate a given string
 func createMainRegexValidatorGroup() *RegexValidatorGroup {
 	// the main regex that will be used to validate postcodes (postcodes that match it are valid)
 	var mainRegex = regexp.MustCompile(`(GIR\s0AA)|(((^[A-PR-UWYZ][0-9][0-9]?)|(([A-PR-UWYZ][A-HK-Y][0-9][0-9])|([A-PR-UWYZ][A-HK-Y][0-9])|(WC[0-9][A-Z])|((^[A-PR-UWYZ][0-9][A-HJKPSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]))))\s[0-9][ABD-HJLNP-UW-Z]{2})`)
@@ -318,11 +344,13 @@ func createMainRegexValidatorGroup() *RegexValidatorGroup {
 	return postCodeRegexValidator
 }
 
+// "errorExit" wrties the string "str" and error code "code" to the standard error output
 func errorExit(str string, code int) {
 	fmt.Fprintf(os.Stderr, "%s\n", str)
 	os.Exit(code)
 }
 
+// "check" checks the error "e" to make sure it is nil, panics if not nil
 func check(e error) {
 	if e != nil {
 		panic(e)

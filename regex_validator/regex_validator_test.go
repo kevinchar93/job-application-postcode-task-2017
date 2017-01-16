@@ -69,7 +69,6 @@ func Test_IsStringValid__MatchMeansValid_WithNonMatchingString(t *testing.T) {
 
 // expected: false
 // call IsStringValid on a validator with "MATCH_MEANS_NOT_VALID" symantic and give it a matching string
-//
 func Test_IsStringValid__MatchMeansNotValid_WithMatchingString(t *testing.T) {
 	postcode := "FY10 4PL"
 	expected := false
@@ -83,7 +82,6 @@ func Test_IsStringValid__MatchMeansNotValid_WithMatchingString(t *testing.T) {
 
 // expected: true
 // call IsStringValid on a validator with "MATCH_MEANS_NOT_VALID" symantic and give it a string that does not match
-//
 func Test_IsStringValid__MatchMeansNotValid_WithNonMatchingString(t *testing.T) {
 	postcode := "Q1A 9AA"
 	expected := true
@@ -110,7 +108,6 @@ func Test_IsStringValid__MainRegex_WithMatchingString(t *testing.T) {
 
 // expected: false
 // call IsStringValid, the validator will use the "mainRegex_test" and be given a string that does not match
-//
 func Test_IsStringValid__MainRegex_WithNonMatchingString(t *testing.T) {
 	postcode := "$%± ()()"
 	expected := false

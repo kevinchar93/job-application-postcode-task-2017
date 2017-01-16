@@ -61,6 +61,7 @@ func NewRegexValidatorGroup() *RegexValidatorGroup {
 	return &RegexValidatorGroup{validators: make([]*RegexValidator, 0)}
 }
 
+// add a regex validator to the collection
 func (r *RegexValidatorGroup) AddRegexValidator(val *RegexValidator) {
 	r.validators = append(r.validators, val)
 }
