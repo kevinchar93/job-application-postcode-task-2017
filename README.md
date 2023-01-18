@@ -1,11 +1,14 @@
 
-## NOTE: this program was written with Go 1.7 in early 2017 - it may note work with the latest version of Go: https://go.dev/dl/
 
 # postcode-task, Kevin Charles
 
+***NOTE: This program was written with Go 1.7 in early 2017 - it may NOT work with the latest version of Go: https://go.dev/dl/***
+
 My solution for the task is written in Go 1.7 and can be built and run on any operating system. You will need an installation of the Go runtime to run the program, simple installation instructions can be found at https://golang.org/doc/install.
 
-Please read the rest of the readme for usage instructions and other notes
+The task is described in `postcode_task.md`.
+
+Please read the rest of the README for usage instructions and other notes.
 
 - [postcode-task, Kevin Charles](#postcode-task-kevin-charles)
   - [Folder Structure](#folder-structure)
@@ -14,12 +17,10 @@ Please read the rest of the readme for usage instructions and other notes
   - [Operating the program](#operating-the-program)
   - [Choice of The Go Programming Language](#choice-of-the-go-programming-language)
   - [About Task 1](#about-task-1)
-    - [Notes](#notes)
   - [About Task 2](#about-task-2)
-    - [Notes](#notes-1)
   - [About Task 3](#about-task-3)
     - [Profiling tools](#profiling-tools)
-    - [Notes](#notes-2)
+    - [Notes](#notes)
 
 ----------
 
@@ -38,13 +39,13 @@ job-application-postcode-task-2017/
 | Folder | Description |
 |------------------------------------|-----------------------------------------------------------------------------|
 | `job-application-postcode-task-2017` | root folder |
-| `../regex_validator` | by default holds final version of the program |
-| `../profiling` | holds folders with images of profiler results |
-| `../../1_TASK_2_REL` | holds profiler results of program at TASK_2_REL tag in Git |
-| `../../2_TASK_3_SEQ` | holds profiler results of program at TASK_3_SEQ tag in Git |
-| `../../3_TASK_CSV_READER_REPLACED` | holds profiler results of program at TASK_CSV_READER_REPLACED tag in Git |
-| `../../4_TASK_3_PIPLINE_IMPLEMENTED` | holds profiler results of program at TASK_3_PIPLINE_IMPLEMENTED tag in Git |
-| `../../5_TASK_3_PARA` | holds profiler results of program at TASK_3_PARA (final version) tag in Git |
+| `.../regex_validator` | by default holds final version of the program |
+| `.../profiling` | holds folders with images of profiler results |
+| `.../.../1_TASK_2_REL` | holds profiler results of program at TASK_2_REL tag in Git |
+| `.../.../2_TASK_3_SEQ` | holds profiler results of program at TASK_3_SEQ tag in Git |
+| `.../.../3_TASK_CSV_READER_REPLACED` | holds profiler results of program at TASK_CSV_READER_REPLACED tag in Git |
+| `.../.../4_TASK_3_PIPLINE_IMPLEMENTED` | holds profiler results of program at TASK_3_PIPLINE_IMPLEMENTED tag in Git |
+| `.../.../5_TASK_3_PARA` | holds profiler results of program at TASK_3_PARA (final version) tag in Git |
 
 
 ---
@@ -138,7 +139,6 @@ The unit tests for Task 1 are defined in `/regex_validator/task1_unit_test.go`
 The tests for the project can be run with (inside the `regex_validator` folder):
 `go test` or `go test -v` for verbose output
 
-### Notes
 I begun this task by breaking down the regex into sections based on the capture groups and tried it out using some online tools. In writing and running the unit tests I discovered an issue.
 
 The sections of the regex that were meant to capture the shorter A9/A99 and A9A postcode prefix, `([A-PR-UWYZ][0-9][0-9]?)` and `([A-PR-UWYZ][0-9][A-HJKPSTUW])` respectively, were finding postcodes that match them inside of invalid AA99 or AA9A prefixes.
@@ -161,24 +161,25 @@ Using this simple but powerful type I could use the original regex with the nega
 
 Main regex *- postcodes that match it are valid, note added carets(^)*
 
-
-       (GIR\s0AA)|(((^[A-PR-UWYZ][0-9][0-9]?)|(([A-PR-UWYZ][A-HK-Y][0-9][0-9])|([A-PR-UWYZ][A-HK-Y][0-9])|(WC[0-9][A-Z])|((^[A-PR-UWYZ][0-9][A-HJKPSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]))))\s[0-9][ABD-HJLNP-UW-Z]{2})
+```
+(GIR\s0AA)|(((^[A-PR-UWYZ][0-9][0-9]?)|(([A-PR-UWYZ][A-HK-Y][0-9][0-9])|([A-PR-UWYZ][A-HK-Y][0-9])|(WC[0-9][A-Z])|((^[A-PR-UWYZ][0-9][A-HJKPSTUW])|([A-PR-UWYZ][A-HK-Y][0-9][ABEHMNPRVWXY]))))\s[0-9][ABD-HJLNP-UW-Z]{2})
+```
 
 AA99 exclusion regex - *postcodes that match it are invalid*
-
-    ((BR|FY|HA|HD|HG|HR|HS|HX|JE|LD|SM|SR|WC|WN|ZE)[0-9][0-9]\s[0-9][ABD-HJLNP-UW-Z]{2})
+```
+((BR|FY|HA|HD|HG|HR|HS|HX|JE|LD|SM|SR|WC|WN|ZE)[0-9][0-9]\s[0-9][ABD-HJLNP-UW-Z]{2})
+```
 
 AA9 exclusion regex - *postcodes that match it are invalid*
-
-    ((AB|LL|SO)[0-9]\s[0-9][ABD-HJLNP-UW-Z]{2})
+```
+((AB|LL|SO)[0-9]\s[0-9][ABD-HJLNP-UW-Z]{2})
+```
 
 ---
 
 ## About Task 2
 
-Running the program for task two is covered in the section **"Operating the program"**
-
-### Notes
+Running the program for task two is covered in the section [Operating the program](#operating-the-program)
 
 The overall algorithm that achieves Task 2 is very simple
 
@@ -198,7 +199,7 @@ Profiling results of the program when it was at tag `TASK_2_REL` can be found in
 
 ## About Task 3
 
-Running the program for task three is covered in the section **“Operating the program”**
+Running the program for task three is covered in the section [Operating the program](#operating-the-program)
 
 ### Profiling tools
 **go pprof**
@@ -248,5 +249,3 @@ Two other Goroutines are spawned by `validateInputRecords` which read from the `
 This final change improved average wall execution time from 15.1s to 12.1s another significant improvement. Another point to make that can be seen in the profiling time results is that the `user` time grows as the program becomes more parallelised (as more CPU time is used across multiple CPUs) but the `real` time falls as less real-world time passes when running the program.
 
 The final profiling results are in `submission/profiling/5__TASK_3_PARA/`
-
-> Written with [StackEdit](https://stackedit.io/).
