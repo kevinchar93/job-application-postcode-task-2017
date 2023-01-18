@@ -22,8 +22,14 @@ Please read the rest of the README for usage instructions and other notes.
   - [About Task 1](#about-task-1)
   - [About Task 2](#about-task-2)
   - [About Task 3](#about-task-3)
-    - [Profiling tools](#profiling-tools)
     - [Notes](#notes)
+    - [Profiling tools](#profiling-tools)
+      - [Profiling Results](#profiling-results)
+      - [1\_\_TASK\_2\_REL](#1__task_2_rel)
+      - [2\_\_TASK\_3\_SEQ](#2__task_3_seq)
+      - [3\_\_TASK\_CSV\_READER\_REPLACED](#3__task_csv_reader_replaced)
+      - [4\_\_TASK\_3\_PIPLINE\_IMPLEMENTED](#4__task_3_pipline_implemented)
+      - [5\_\_TASK\_3\_PARA](#5__task_3_para)
 
 ----------
 
@@ -204,19 +210,6 @@ Profiling results of the program when it was at tag `TASK_2_REL` can be found in
 
 Running the program for task three is covered in the section [Operating the program](#operating-the-program)
 
-### Profiling tools
-**go pprof**
-I made use of this package https://github.com/pkg/profile and the pprof tool in Go to get detailed CPU profiling results, the linked package outputs a .pprof file on completion. The Go pprof tool takes the .pprof file and can create a visual representation of the profiling results.
-
-These can be seen in the folder  `submission/profiling/TASK_TAG_HERE/` with the name `cpu.png`
-
-I used these results to determine what parts of the program were using the most CPU time.
-
-**time command unix**
-time is a command on unix and unix-like (macOS in this case) systems that can be used to determine the duration of execution of another command, the command in this situation being my program. I used it mainly to measure wall time  taken to complete my program.
-
-The wiki page provides more information https://en.wikipedia.org/wiki/Time_(Unix)
-
 ### Notes
 
 To begin with I went about extending the program from tag `TASK_2_REL` to achieve the requirements of task 3 without looking into making any optimisations, I simply needed to add sorting of the ***ImportRecords*** and the writing of `succeeded_validation.csv`
@@ -252,3 +245,50 @@ Two other Goroutines are spawned by `validateInputRecords` which read from the `
 This final change improved average wall execution time from 15.1s to 12.1s another significant improvement. Another point to make that can be seen in the profiling time results is that the `user` time grows as the program becomes more parallelised (as more CPU time is used across multiple CPUs) but the `real` time falls as less real-world time passes when running the program.
 
 The final profiling results are in `submission/profiling/5__TASK_3_PARA/`
+
+### Profiling tools
+
+**go pprof**
+I made use of this package https://github.com/pkg/profile and the pprof tool in Go to get detailed CPU profiling results, the linked package outputs a .pprof file on completion. The Go pprof tool takes the .pprof file and can create a visual representation of the profiling results.
+
+These can be seen in the folder  `submission/profiling/TASK_TAG_HERE/` with the name `cpu.png`
+
+I used these results to determine what parts of the program were using the most CPU time & adjust my implementation.
+
+**time command unix**
+time is a command on unix and unix-like (macOS in this case) systems that can be used to determine the duration of execution of another command, the command in this situation being my program. I used it mainly to measure wall time  taken to complete my program.
+
+The wiki page provides more information https://en.wikipedia.org/wiki/Time_(Unix)
+
+#### Profiling Results
+
+#### 1__TASK_2_REL
+
+**CPU Profiling Results**
+
+**Wall time performance**
+#### 2__TASK_3_SEQ
+
+**CPU Profiling Results**
+
+**Wall time performance**
+
+#### 3__TASK_CSV_READER_REPLACED
+
+**CPU Profiling Results**
+
+**Wall time performance**
+
+
+#### 4__TASK_3_PIPLINE_IMPLEMENTED
+
+**CPU Profiling Results**
+
+**Wall time performance**
+
+
+#### 5__TASK_3_PARA
+
+**CPU Profiling Results**
+
+**Wall time performance**
