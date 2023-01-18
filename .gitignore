@@ -2,3 +2,4 @@ regex_validator/failed_validation.csv
 regex_validator/regex_validator
 regex_validator/regex_validator.exe
 regex_validator/succeeded_validation.csv
+.DS_Store
