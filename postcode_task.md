@@ -94,6 +94,6 @@ It is acceptable to not use the regular expression (or different regular express
 - Use only standard libraries (unless your language of choice doesn't have a regular expression library).
 - Include instructions on how to run your solution in a markdown formatted file in the root of your solution named `README.md`
 - Include notes on your analysis (e.g. where you have found the regular expression provided doesn't deal with all UK postcode edge cases) either as notes within the code, or in another file `ANALYSIS.md` if you prefer.
-- Submit the task to spine2dev@gmail.com
+- Submit the task to *******@gmail.com
 - Do not include compiled code or binaries.
 - Do not include any output files or any postcode test files.
