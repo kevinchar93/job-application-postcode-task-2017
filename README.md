@@ -2,13 +2,16 @@
 
 # postcode-task, Kevin Charles
 
-***NOTE: This program was written with Go 1.7 in early 2017 - it may NOT work with the latest version of Go: https://go.dev/dl/***
+This repo contains the solution to a task I was given for a junior dev position waaay back in 2017!
+
+The task is defined here: https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/postcode_task.md
 
 My solution for the task is written in Go 1.7 and can be built and run on any operating system. You will need an installation of the Go runtime to run the program, simple installation instructions can be found at https://golang.org/doc/install.
 
-The task is described in `postcode_task.md`.
-
 Please read the rest of the README for usage instructions and other notes.
+
+***NOTE: This program was written with Go 1.7 in early 2017 - it may NOT work with the latest version of Go: https://go.dev/dl/***
+
 
 - [postcode-task, Kevin Charles](#postcode-task-kevin-charles)
   - [Folder Structure](#folder-structure)
