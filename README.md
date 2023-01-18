@@ -25,11 +25,11 @@ Please read the rest of the README for usage instructions and other notes.
     - [Notes](#notes)
     - [Profiling tools](#profiling-tools)
       - [Profiling Results](#profiling-results)
-      - [1\_\_TASK\_2\_REL](#1__task_2_rel)
-      - [2\_\_TASK\_3\_SEQ](#2__task_3_seq)
-      - [3\_\_TASK\_CSV\_READER\_REPLACED](#3__task_csv_reader_replaced)
-      - [4\_\_TASK\_3\_PIPLINE\_IMPLEMENTED](#4__task_3_pipline_implemented)
-      - [5\_\_TASK\_3\_PARA](#5__task_3_para)
+      - [TASK\_2\_REL](#task_2_rel)
+      - [TASK\_3\_SEQ](#task_3_seq)
+      - [TASK\_3\_CSV\_READER\_REPLACED](#task_3_csv_reader_replaced)
+      - [TASK\_3\_PIPELINE\_IMPLEMENTED](#task_3_pipeline_implemented)
+      - [TASK\_3\_PARA](#task_3_para)
 
 ----------
 
@@ -68,6 +68,8 @@ In making this program I have used the Git version control system and made use o
 | TASK_3_PARA | *Final version of the program that uses concurrency for optimisation.  It meets the requirements of tasks 1, 2, & 3.* |
 | TASK_3_SEQ  | *Version of the program that meets the requirements of tasks 1, 2 & 3 but it does so without any optimisations.*       |
 | TASK_2_REL  | *Version of the program that meets the requirements of tasks 1 & 2.*                                                   |
+
+See all tags here: https://github.com/kevinchar93/job-application-postcode-task-2017/tags
 
 You can use Git (in the commandline) to switch between these versions of the program when in the folder **submission/code/FinalCode**, the command is as follows:
 
@@ -258,37 +260,67 @@ I used these results to determine what parts of the program were using the most 
 **time command unix**
 time is a command on unix and unix-like (macOS in this case) systems that can be used to determine the duration of execution of another command, the command in this situation being my program. I used it mainly to measure wall time  taken to complete my program.
 
-The wiki page provides more information https://en.wikipedia.org/wiki/Time_(Unix)
+The wiki page provides more information: https://en.wikipedia.org/wiki/Time_(Unix)
 
 #### Profiling Results
 
-#### 1__TASK_2_REL
+Here are the profiling results from each tagged version of the repo.
 
-**CPU Profiling Results**
+#### [TASK_2_REL](https://github.com/kevinchar93/job-application-postcode-task-2017/releases/tag/TASK_2_REL)
 
-**Wall time performance**
-#### 2__TASK_3_SEQ
+**CPU Profile (click for full size)**
 
-**CPU Profiling Results**
-
-**Wall time performance**
-
-#### 3__TASK_CSV_READER_REPLACED
-
-**CPU Profiling Results**
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/1__TASK_2_REL/cpu.png" width="400" height="400">
 
 **Wall time performance**
 
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/1__TASK_2_REL/time_1.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/1__TASK_2_REL/time_2.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/1__TASK_2_REL/time_3.png" width="220" height="100">
 
-#### 4__TASK_3_PIPLINE_IMPLEMENTED
+---
 
-**CPU Profiling Results**
+#### [TASK_3_SEQ](https://github.com/kevinchar93/job-application-postcode-task-2017/releases/tag/TASK_3_SEQ)
+
+**CPU Profile (click for full size)**
+
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/2__TASK_3_SEQ/cpu.png" width="400" height="400">
+
+**Wall time performance**
+
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/2__TASK_3_SEQ/time_1.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/2__TASK_3_SEQ/time_2.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/2__TASK_3_SEQ/time_3.png" width="220" height="100">
+
+---
+
+#### [TASK_3_CSV_READER_REPLACED](https://github.com/kevinchar93/job-application-postcode-task-2017/releases/tag/TASK_3_CSV_READER_REPLACED)
+
+**CPU Profile (click for full size)**
+
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/3__TASK_CSV_READER_REPLACED/cpu.png" width="400" height="400">
 
 **Wall time performance**
 
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/3__TASK_CSV_READER_REPLACED/time_1.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/3__TASK_CSV_READER_REPLACED/time_2.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/3__TASK_CSV_READER_REPLACED/time_3.png" width="220" height="100">
 
-#### 5__TASK_3_PARA
+---
 
-**CPU Profiling Results**
+
+#### [TASK_3_PIPELINE_IMPLEMENTED](https://github.com/kevinchar93/job-application-postcode-task-2017/releases/tag/TASK_3_PIPELINE_IMPLEMENTED)
+
+**CPU Profile (click for full size)**
+
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/4__TASK_3_PIPLINE_IMPLEMENTED/cpu.png" width="400" height="400">
 
 **Wall time performance**
+
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/4__TASK_3_PIPLINE_IMPLEMENTED/time_1.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/4__TASK_3_PIPLINE_IMPLEMENTED/time_2.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/4__TASK_3_PIPLINE_IMPLEMENTED/time_3.png" width="220" height="100">
+
+---
+
+#### [TASK_3_PARA](https://github.com/kevinchar93/job-application-postcode-task-2017/releases/tag/TASK_3_PARA)
+
+**CPU Profile (click for full size)**
+
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/5__TASK_3_PARA/cpu.png" width="400" height="400">
+
+**Wall time performance**
+
+<img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/5__TASK_3_PARA/time_1.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/5__TASK_3_PARA/time_2.png" width="220" height="100">           <img src="https://github.com/kevinchar93/job-application-postcode-task-2017/blob/master/profiling/5__TASK_3_PARA/time_3.png" width="220" height="100">
