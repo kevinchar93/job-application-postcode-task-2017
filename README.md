@@ -212,8 +212,6 @@ Profiling results of the program when it was at tag `TASK_2_REL` can be found in
 
 Running the program for task three is covered in the section [Operating the program](#operating-the-program)
 
-### Notes
-
 To begin with I went about extending the program from tag `TASK_2_REL` to achieve the requirements of task 3 without looking into making any optimisations, I simply needed to add sorting of the ***ImportRecords*** and the writing of `succeeded_validation.csv`
 
 After doing this I profiled & timed the program(`submission/profiling/2__TASK_3_SEQ/`).  In doing this I noticed the function `csv.Reader.Read` was using the most CPU time so I went optimising this by using a slightly faster reader, a buffered reader. This improved average wall execution time from 19.72s to 17.19s
